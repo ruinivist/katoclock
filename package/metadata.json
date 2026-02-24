@@ -1,0 +1,19 @@
+{
+    "KPlugin": {
+        "Name": "KatoClock",
+        "Description": "Just a cat pointing you the time",
+        "Icon": "plasma",
+        "Category": "Development",
+        "Id": "katoclock.ruiny.de",
+        "Version": "1.0",
+        "Website": "https://github.com/ruinivist/katoclock",
+        "License": "GPL-3.0+",
+        "Authors": [
+            {
+                "Name": "ruinivist"
+            }
+        ]
+    },
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "KPackageStructure": "Plasma/Applet"
+}
