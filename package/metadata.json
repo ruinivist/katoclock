@@ -1,7 +1,7 @@
 {
     "KPlugin": {
         "Name": "KatoClock",
-        "Description": "Just a cat pointing you the time",
+        "Description": "Just a cat with a clock",
         "Icon": "preferences-system-time",
         "Category": "Development",
         "Id": "katoclock.ruiny.de",

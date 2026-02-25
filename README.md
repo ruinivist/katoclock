@@ -1,6 +1,6 @@
 # katoclock
 
-Just a cat pointing you the time. Bootstrapped from my [kde-6-widget-starter](https://github.com/ruinivist/kde-6-widget-starter)
+Just a cat with a clock. Bootstrapped from my [kde-6-widget-starter](https://github.com/ruinivist/kde-6-widget-starter)
 
 ![Screenshot from desktop](Example.png)
 
