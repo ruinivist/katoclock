@@ -36,4 +36,13 @@ target_link_libraries(cppbridgeplugin PRIVATE
 set_target_properties(cppbridgeplugin PROPERTIES
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../package/contents/ui/cppbridge"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../package/contents/ui/cppbridge"
+    BUILD_WITH_INSTALL_RPATH TRUE
+    INSTALL_RPATH "$ORIGIN"
+)
+
+set_target_properties(cppbridgepluginplugin PROPERTIES
+    BUILD_WITH_INSTALL_RPATH TRUE
+    INSTALL_RPATH "$ORIGIN"
 )
