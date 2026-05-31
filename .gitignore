@@ -15,7 +15,6 @@
 # Build artifacts
 build/
 *.plasmoid
-package/contents/ui/cppbridge/
 
 # Temporary files
 *~

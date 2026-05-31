@@ -6,9 +6,6 @@ METADATA_FILE := $(PACKAGE_DIR)/metadata.json
 WIDGET_ID := $(shell grep -oP '"Id": "\K[^"]+' $(METADATA_FILE))
 BUILD_DIR := build
 PLASMOID_FILE := $(WIDGET_ID).plasmoid
-CPP_DIR := cpp
-CPP_BUILD_DIR := $(BUILD_DIR)/cpp
-CPP_MODULE_DIR := $(PACKAGE_DIR)/contents/ui/cppbridge
 
 # Default target
 .PHONY: help
@@ -18,13 +15,11 @@ help:
 	@echo "Usage:"
 	@echo "  make dev           Run widget in plasmoidviewer from local package (MODE=panel|desktop|hidpi)"
 	@echo "  make watch         Start Development Mode with Hot Reload"
-	@echo "  make cpp-build     Build the C++ QML bridge module"
-	@echo "  make cpp-clean     Remove C++ bridge build artifacts"
 	@echo "  make install       Install/upgrade widget in local Plasma package store"
 	@echo "  make uninstall     Remove widget from local system"
 	@echo "  make package       Build .plasmoid file for distribution"
 	@echo "  make clean         Remove build artifacts"
-	@echo "  make format        Format QML, C++, JSON, YAML, and Markdown files"
+	@echo "  make format        Format QML, JSON, YAML, and Markdown files"
 	@echo "  make lint          Run non-mutating lint and formatting checks"
 	@echo "  make hooks-install Configure Git to use versioned hooks from .githooks/"
 
@@ -35,28 +30,11 @@ hooks-install:
 	git config core.hooksPath .githooks
 	@echo "Configured core.hooksPath=.githooks"
 
-# C++ Bridge Build Targets
-# Generate CMake build files for the C++ QML bridge.
-.PHONY: cpp-configure
-cpp-configure:
-	mkdir -p $(CPP_BUILD_DIR)
-	cd $(CPP_DIR) && cmake --preset clang-default
-
-# Build the C++ QML bridge module binaries.
-.PHONY: cpp-build
-cpp-build: cpp-configure
-	cmake --build $(CPP_BUILD_DIR)
-
-# Remove C++ bridge build output and copied module artifacts.
-.PHONY: cpp-clean
-cpp-clean:
-	rm -rf $(CPP_BUILD_DIR) $(CPP_MODULE_DIR)
-
 # Testing Targets
 # Run plasmoidviewer from the local package directory.
 # Optional MODE values: panel, desktop, hidpi (omit MODE for default).
 .PHONY: dev
-dev: cpp-build
+dev:
 	@mode="$(MODE)"; \
 	case "$$mode" in \
 		""|default) \
@@ -75,7 +53,7 @@ dev: cpp-build
 # Development Tools
 # Start file watcher for iterative development and reload workflow.
 .PHONY: watch
-watch: cpp-build
+watch:
 	./scripts/watch.sh
 
 # Format all QML files in the package directory in-place.
@@ -83,12 +61,6 @@ watch: cpp-build
 format-qml:
 	@command -v qmlformat >/dev/null 2>&1 || { echo "Missing required tool: qmlformat"; exit 1; }
 	find $(PACKAGE_DIR) -name "*.qml" -type f -exec qmlformat -i {} +
-
-# Format C/C++ source and header files with clang-format.
-.PHONY: format-cpp
-format-cpp:
-	@command -v clang-format >/dev/null 2>&1 || { echo "Missing required tool: clang-format"; exit 1; }
-	find $(CPP_DIR) -type f \( -name "*.c" -o -name "*.cc" -o -name "*.cpp" -o -name "*.h" -o -name "*.hh" -o -name "*.hpp" \) -exec clang-format -i {} +
 
 # Format JSON/YAML/Markdown files with prettier.
 .PHONY: format-prettier
@@ -102,7 +74,7 @@ format-prettier:
 
 # Run all formatting passes.
 .PHONY: format
-format: format-qml format-cpp format-prettier
+format: format-qml format-prettier
 
 # Linting
 # Check QML formatting without changing files.
@@ -119,15 +91,9 @@ lint-qml-format:
 
 # Run semantic QML lint checks.
 .PHONY: lint-qml
-lint-qml: cpp-build
+lint-qml:
 	@command -v qmllint >/dev/null 2>&1 || { echo "Missing required tool: qmllint"; exit 1; }
 	find $(PACKAGE_DIR) -name "*.qml" -type f -print0 | xargs -0 -r qmllint
-
-# Check C/C++ formatting without changing files.
-.PHONY: lint-cpp
-lint-cpp:
-	@command -v clang-format >/dev/null 2>&1 || { echo "Missing required tool: clang-format"; exit 1; }
-	find $(CPP_DIR) -type f \( -name "*.c" -o -name "*.cc" -o -name "*.cpp" -o -name "*.h" -o -name "*.hh" -o -name "*.hpp" \) -print0 | xargs -0 -r clang-format --dry-run --Werror
 
 # Check JSON/YAML/Markdown formatting without changing files.
 .PHONY: lint-prettier
@@ -141,12 +107,12 @@ lint-prettier:
 
 # Run all lint and formatting checks.
 .PHONY: lint
-lint: lint-qml-format lint-qml lint-cpp lint-prettier
+lint: lint-qml-format lint-qml lint-prettier
 
 # Installation
 # Install/upgrade widget in local Plasma package store.
 .PHONY: install
-install: cpp-build
+install:
 	@if kpackagetool6 --type Plasma/Applet --show $(WIDGET_ID) >/dev/null 2>&1; then \
 		echo "Upgrading existing package: $(WIDGET_ID)"; \
 		kpackagetool6 --type Plasma/Applet --upgrade $(PACKAGE_DIR); \
@@ -157,7 +123,7 @@ install: cpp-build
 
 # Upgrade an already installed widget package with local changes.
 .PHONY: upgrade
-upgrade: cpp-build
+upgrade:
 	kpackagetool6 --type Plasma/Applet --upgrade $(PACKAGE_DIR)
 
 # Remove installed widget package from local system.
@@ -173,7 +139,7 @@ uninstall:
 # Packaging
 # Create distributable .plasmoid archive from current package contents.
 .PHONY: package
-package: cpp-build
+package:
 	mkdir -p $(BUILD_DIR)
 	rm -f $(BUILD_DIR)/$(PLASMOID_FILE)
 
@@ -186,4 +152,4 @@ package: cpp-build
 # Delete all generated build artifacts for a clean workspace.
 .PHONY: clean
 clean:
-	rm -rf $(BUILD_DIR) $(CPP_MODULE_DIR)
+	rm -rf $(BUILD_DIR)
