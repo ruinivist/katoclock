@@ -512,7 +512,7 @@ def resolve_runtime_config(args: argparse.Namespace) -> RuntimeConfig:
 
 
 def create_session(base_url: str) -> SessionLike:
-    session = cast(SessionLike, cast(object, niquests.Session()))
+    session = cast(SessionLike, cast(object, niquests.Session(disable_http2=True, disable_http3=True)))
     session.headers.update(
         {
             "User-Agent": (
